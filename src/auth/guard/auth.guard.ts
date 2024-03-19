@@ -22,11 +22,12 @@ export class AuthGuard implements CanActivate {
     // reflector: obtiene los metadatos mediante el decorador SetMetaData en IS_PUBLIC_KEY
     // getAllAndOverride: obtiene los metadatos de las fuentes proporcionadas en orden
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      // Contiene el constructor de donde se llama
+      // Contiene la referencia al controlador que está a punto de ser invocado '.name= nameMethod'
       context.getHandler(),
-      // Contiene la clase de donde se llama
+      // Contiene el tipo de controllador de la clase a la que pertenece ese controlador '.name= NameController'
       context.getClass(),
     ]);
+    
     console.log(isPublic);
 
     if (isPublic) {
