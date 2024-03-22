@@ -1,48 +1,42 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
-import { validate } from 'class-validator';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../entities/user.entity';
+import { UserEntity } from '../entities/user.entity';
 import { Repository } from 'typeorm';
-import { json } from 'stream/consumers';
-import { LoginUserDto } from '../dto/login-user.dto';
-
+import { SignUpDto } from 'src/auth/dto/signup-user.dto';
+import { SignInDto } from 'src/auth/dto/signin-user.dto';
+import * as bcrypt from 'bcrypt'
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+// import { UserProfile } from './userProfile.service';
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(User) private userRepository: Repository<User>) { }
 
-  createUser(createUserDto: CreateUserDto): Promise<User> {
-    const user: User = new User();
-    user.username = createUserDto.username;
-    user.email = createUserDto.email;
-    user.password = createUserDto.password;
-    return this.userRepository.save(user);
+  constructor(
+    @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) { }
+
+  async createUser(signUpDto: SignUpDto): Promise<UserEntity> {
+    const user: UserEntity = new UserEntity();
+    user.password = await bcrypt.hash(signUpDto.password, await bcrypt.genSalt());
+    const userMap = this.mapper.map(signUpDto, SignUpDto, UserEntity);
+    userMap.password = user.password;
+    return await this.userRepository.save(userMap);
   }
 
-  async loginUser(loginUserDto: LoginUserDto): Promise<any> {
-    const userLogin = await this.userRepository.
-      findOne({
-        where: {
-          username: loginUserDto.username,
-          password: loginUserDto.password,
-        }
-      })
-    console.log('login', userLogin);
-
-    if (userLogin) {
-      return {
-        success: true,
-        user: userLogin,
-      }
-    } else {
-      return {
-        success: false,
-      }
+  async loginUser(signInDto: SignInDto): Promise<boolean> {
+    const user = await this.findByUsername(signInDto.username)
+    if (!await bcrypt.compare(signInDto.password, user.password)) {
+      return false
     }
+    return true;
   }
 
-  async findAllUsers(): Promise<User[]> {
+  // async changePassword(changePasswordDto) {
+  //   const user = await this.findByUsername(changePasswordDto.username)
+  // }
+
+  async findAllUsers(): Promise<UserEntity[]> {
     return await this.userRepository.find();
   }
 
@@ -50,20 +44,14 @@ export class UserService {
     await this.userRepository.delete(id);
   }
 
-  async findByUsername(username: string): Promise<User | null> {
+  async findByUsername(username: string): Promise<UserEntity | null> {
     return this.userRepository.findOne({ where: { username: username } })
   }
 
-  async findUserById(id: number): Promise<User | null> {
+  async findUserById(id: number): Promise<UserEntity | null> {
     return await this.userRepository.findOneBy({ id });
   }
 
-  async verifyUser() {
-
-  }
-  // async update(id: number, updateUserDto: UpdateUserDto) {
-  //   return await this.userRepository.update({ id }, newId);
-  // }
 
 
 

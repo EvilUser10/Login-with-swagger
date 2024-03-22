@@ -1,13 +1,18 @@
-import { IsEmail, IsInt, IsNotEmpty, IsString, Length } from 'class-validator';
-export class UserDto {
+import { AutoMap } from "@automapper/classes";
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
 
-  @IsString({ 'message': 'Escriba un nombre válido.' })
-  @Length(8, 20, { 'message': 'Escriba' })
+@Entity()
+export class UserDto {
+  
+  @AutoMap()
+  id: number;
+
+  @AutoMap()
   username: string;
 
-  @IsEmail()
-  email?: string;
+  @AutoMap()
+  email: string;
 
-  // Mas campos...
+  password: string;
 
 }

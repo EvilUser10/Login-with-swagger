@@ -17,22 +17,22 @@ export class AuthGuard implements CanActivate {
     private reflector: Reflector,
   ) { }
 
-  // context contiene la información sobre el contexto de ejecución de la solicitud HTTP
+  // context contiene la información sobre el contexto de ejecución
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // reflector: obtiene los metadatos mediante el decorador SetMetaData en IS_PUBLIC_KEY
     // getAllAndOverride: obtiene los metadatos de las fuentes proporcionadas en orden
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       // Contiene la referencia al controlador que está a punto de ser invocado '.name= nameMethod'
+      // Accede a la información del metodo controlador actual
       context.getHandler(),
-      // Contiene el tipo de controllador de la clase a la que pertenece ese controlador '.name= NameController'
+      // // Contiene el tipo de controllador de la clase a la que pertenece ese controlador '.name= NameController'
       context.getClass(),
     ]);
-    
-    console.log(isPublic);
+
 
     if (isPublic) {
       return true;
     }
+
     // Obtenemos el objeto de solicitud HTTP mediante los siguientes metodos (toda la información de la solicitud)
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
@@ -46,11 +46,13 @@ export class AuthGuard implements CanActivate {
           secret: jwtConstants.secret
         }
       );
-      request['user'] = payload;
+      // Modifica el request antes de ejecutarlo en el controlador
+      request.user = payload;
+      console.log(request.user);
+      return true;
     } catch {
       throw new UnauthorizedException();
     }
-    return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

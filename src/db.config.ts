@@ -1,5 +1,5 @@
 import { DataSource } from "typeorm";
-import { User } from "./user/entities/user.entity";
+import { UserEntity } from "./user/entities/user.entity";
 
 const myDataSource = new DataSource({
   type: "mysql",
@@ -8,5 +8,5 @@ const myDataSource = new DataSource({
   username: "root",
   password: "",
   database: "users",
-  entities: [User],
+  entities: [UserEntity],
 });

@@ -1,18 +1,22 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { AutoMap } from "@automapper/classes";
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
-export class User {
-
+export class UserEntity {
+  
+  @AutoMap()
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 30 })
+  @AutoMap()
+  @Column({ type: 'varchar', length: 50 })
   username: string;
 
-  @Column({ type: 'varchar', length: 40 })
+  @AutoMap()
+  @Column({ type: 'varchar', length: 80 })
   email: string;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', length: 255 })
   password: string;
 
 }

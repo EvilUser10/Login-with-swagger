@@ -1,11 +1,19 @@
 import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user/entities/user.entity';
+import { UserEntity } from './user/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
+import { AutomapperModule } from '@automapper/nestjs';
+import { classes } from '@automapper/classes';
+
 
 @Module({
-  imports: [UserModule,
+  imports: [
+    AutomapperModule.forRoot({
+      strategyInitializer: classes(),
+    }),
+    UserModule,
+    AuthModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
@@ -13,10 +21,10 @@ import { AuthModule } from './auth/auth.module';
       username: 'root',
       password: '',
       database: 'users',
-      entities: [User],
+      entities: [UserEntity],
       synchronize: true,
     }),
-    AuthModule,
-  ]
+
+  ],
 })
 export class AppModule { }

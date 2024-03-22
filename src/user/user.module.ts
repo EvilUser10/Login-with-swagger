@@ -1,16 +1,29 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UserService } from './services/user.service';
 import { UserController } from './controllers/user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/roles.guard';
+import { AuthModule } from 'src/auth/auth.module';
+import { UserProfile } from './services/userProfile.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [
+    TypeOrmModule.forFeature([UserEntity]),
+    forwardRef(() => AuthModule),
+  ],
+
   controllers: [UserController],
-  providers: [UserService],
+  providers: [
+    UserService,
+    UserProfile,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard
+    }
+  ],
   exports: [TypeOrmModule]
 })
-
-// forFeature define que repositorios se encuentran registrados
 
 export class UserModule { }

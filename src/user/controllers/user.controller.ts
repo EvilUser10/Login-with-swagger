@@ -1,52 +1,34 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Request } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
-import { User } from '../entities/user.entity';
-import { LoginUserDto } from '../dto/login-user.dto';
+import { Roles } from '../decorators/roles.decorator';
+import { Role } from '../enum/rol.enum';
+import { Public } from 'src/auth/decorators/public.decorators';
 
 @Controller('user')
 export class UserController {
 
   constructor(private readonly userService: UserService) { }
-
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    return await this.userService.createUser(createUserDto);
+  // Para que se ejecute, necesita devolver en el auth.guard true, en este caso se verificará el token
+  @Get('profile')
+  getProfile(@Request() req) {
+    // El request lo modificamos en el guard
+    return req.user;
   }
 
-  @Post('login')
-  async login(@Body() LoginUserDto: LoginUserDto) {
-    const loginUser = await this.userService.loginUser(LoginUserDto)
-    if (loginUser.success) {
-      return {
-        success: true,
-        message: 'Usuario logeado',
-        user: loginUser,
-      }
-    } else {
-      return {
-        success: false,
-        message: 'Usuario no logeado',
-      }
-    }
-  }
-
+  @Public()
   @Get()
   findAll() {
     return this.userService.findAllUsers();
   }
 
+  @Roles(Role.Admin)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {
     return this.userService.findUserById(+id);
   }
 
-  // @Patch(':id')
-  // update(@Param('id', ParseIntPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.userService.update(+id, updateUserDto);
-  // }
 
+  @Roles(Role.Admin)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: string) {
     return this.userService.remove(+id);

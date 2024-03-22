@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { UserModule } from 'src/user/user.module';
@@ -6,23 +6,26 @@ import { UserService } from 'src/user/services/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './guard/auth.guard';
+import { AuthGuard } from './guards/auth.guard';
+import { UserProfile } from 'src/user/services/userProfile.service';
 
 @Module({
   controllers: [AuthController],
-  providers: [UserService,
+  providers: [
+    UserService,
     AuthService,
+    UserProfile,
     {
       provide: APP_GUARD,
       useClass: AuthGuard
     }
   ],
   imports: [
-    UserModule,
+    forwardRef(() => UserModule),
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '3600s' },
     })
   ],
   exports: [AuthService]
