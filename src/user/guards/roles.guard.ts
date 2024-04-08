@@ -23,7 +23,7 @@ export class RolesGuard implements CanActivate {
     console.log(roles);
     // Comprobar si hay un rol, para que no de error y se pare el programa
     const request = context.switchToHttp().getRequest();
-    const userRoles = request.headers?.role.split(',')
+    const userRoles = request.headers && request.headers.role ? request.headers.role.split(',') : [];
     return this.validateRoles(roles, userRoles)
 
   }

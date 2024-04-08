@@ -6,7 +6,9 @@ import { Public } from '../decorators/public.decorators';
 import { SignUpDto } from '../dto/signup-user.dto';
 import { MapInterceptor } from '@automapper/nestjs';
 import { UserEntity } from 'src/user/entities/user.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("auth")
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) { }
@@ -25,9 +27,4 @@ export class AuthController {
   signUp(@Body() signUpDto: SignUpDto) {
     return this.authService.signUp(signUpDto)
   }
-
-  
-
-
-
 }

@@ -26,6 +26,7 @@ export class UserService {
 
   async loginUser(signInDto: SignInDto): Promise<boolean> {
     const user = await this.findByUsername(signInDto.username)
+    console.log(signInDto.password);
     if (!await bcrypt.compare(signInDto.password, user.password)) {
       return false
     }
